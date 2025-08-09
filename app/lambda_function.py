@@ -142,7 +142,7 @@ def lambda_handler(event, context):
         paylaod_saida = json.dumps(payloadDTO)
         print(paylaod_saida)
 
-        enviar_mensagem_para_qualquer_fila("", paylaod_saida)
+        enviar_mensagem_para_qualquer_fila(SQS_QUEUE_URL, paylaod_saida)
 
         
     return {
