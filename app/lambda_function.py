@@ -7,8 +7,7 @@ from botocore.exceptions import NoCredentialsError
 from datetime import datetime, timedelta
 
 # Configurações (variáveis de ambiente)
-BACKEND_URL = os.getenv('BACKEND_URL', 'https://seu-backend.com/api/update-file')
-BACKEND_API_KEY = os.getenv('BACKEND_API_KEY')  # Opcional: autenticação
+SQS_QUEUE_URL = os.getenv('SQS_QUEUE_URL')
 
 
 def mes_para_int(mes_extenso):
