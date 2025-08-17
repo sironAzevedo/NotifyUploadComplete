@@ -29,10 +29,10 @@ jobs:
         id: set-role
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            echo "assume-role=${ env.PROD_AWS_ASSUME_ROLE_ARN }" >> $GITHUB_OUTPUT
+            echo "assume-role=${{ env.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
             echo "environment=prod" >> $GITHUB_OUTPUT
           else
-            echo "assume-role=${ env.DEV_AWS_ASSUME_ROLE_ARN }" >> $GITHUB_OUTPUT
+            echo "assume-role=${{ env.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
             echo "environment=dev" >> $GITHUB_OUTPUT
           fi
         env:
