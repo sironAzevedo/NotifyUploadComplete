@@ -42,7 +42,7 @@ jobs:
     uses: ./.github/workflows/terraform-validate.yml
     with:
       aws-region: 'us-east-1'
-      environment: ${{ needs.setup.outputs.environment }}
+      environment: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
       aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
 
   deploy:
