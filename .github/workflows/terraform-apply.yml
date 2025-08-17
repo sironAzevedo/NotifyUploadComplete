@@ -5,12 +5,12 @@ on:
     inputs:
       environment:
         type: string
-        required: true
-      aws-assume-role-arn:
-        type: string
-        required: true
+        required: true      
       aws-region:
         type: string
+        required: true
+    secrets:
+      aws-assume-role-arn:
         required: true
 
 permissions:
@@ -27,7 +27,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-assume-role-arn }}
+          role-to-assume: ${{ secrets.aws-assume-role-arn }}
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ inputs.aws-region }}
 

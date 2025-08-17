@@ -1,0 +1,35 @@
+name: CI/CD Terraform AWS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'infra/terraform/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  validate:
+    name: Terraform Validate
+    uses: ./.github/workflows/terraform-validate.yml
+    with:
+      aws-region: 'us-east-1'
+      environment: 'prod'
+    secrets:
+      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+
+  deploy:
+    name: Terraform Apply
+    needs: [validate]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    uses: ./.github/workflows/terraform-apply.yml
+    with:
+      aws-region: 'us-east-1'
+      environment: 'prod'
+    secrets:
+      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}

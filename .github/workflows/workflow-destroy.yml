@@ -22,8 +22,8 @@ jobs:
   # Job para destruir o ambiente de desenvolvimento
   destroy-dev:
     if: inputs.confirm == 'destruir' && inputs.environment == 'dev'
-    runs-on: ubuntu-latest # <-- MUDANÇA
-    steps: # <-- MUDANÇA
+    runs-on: ubuntu-latest
+    steps:
       - name: Destroy Workflow for Dev
         uses: ./.github/workflows/terraform-destroy.yml
         with:
@@ -34,8 +34,8 @@ jobs:
   # Job para destruir o ambiente de produção
   destroy-prod:
     if: inputs.confirm == 'destruir' && inputs.environment == 'prod'
-    runs-on: ubuntu-latest # <-- MUDANÇA
-    steps: # <-- MUDANÇA
+    runs-on: ubuntu-latest
+    steps:
       - name: Destroy Workflow for Prod
         uses: ./.github/workflows/terraform-destroy.yml
         with:
