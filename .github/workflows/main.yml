@@ -40,7 +40,7 @@ jobs:
     name: Terraform Validate
     needs: setup
     uses: ./.github/workflows/terraform-validate.yml
-    secrets:
+    with:
       aws-region: 'us-east-1'
       environment: ${{ needs.setup.outputs.environment }}
       aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
@@ -50,7 +50,7 @@ jobs:
     needs: [setup, validate]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
-    secrets:
+    with:
       aws-region: 'us-east-1'
       environment: ${{ needs.setup.outputs.environment }}
       aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
