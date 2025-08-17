@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.determine_env.outputs.environment }}
-      aws_role_arn: ${{ steps.determine_env.outputs.aws_role_arn }}
+      aws-assume-role-arn: ${{ steps.determine_env.outputs.aws-assume-role-arn }}
       is_deploy_event: ${{ steps.determine_env.outputs.is_deploy_event }}
 
     steps:
@@ -38,21 +38,18 @@ jobs:
 
           if [[ "${{ github.ref_name }}" == "main" ]] || [[ "${{ github.base_ref }}" == "main" ]]; then
             echo "environment=prod" >> $GITHUB_OUTPUT
-            echo "aws_role_arn=${PROD_ROLE}" >> $GITHUB_OUTPUT
+            echo "aws-assume-role-arn=${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
           else
             echo "environment=dev" >> $GITHUB_OUTPUT
-            echo "aws_role_arn=${DEV_ROLE}" >> $GITHUB_OUTPUT
+            echo "aws-assume-role-arn=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
           fi
-        env:
-          PROD_ROLE: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
-          DEV_ROLE: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
 
   validate:
     needs: setup
     uses: ./.github/workflows/terraform-validate.yml
     with:
       environment: ${{ needs.setup.outputs.environment }}
-      aws-assume-role-arn: ${{ needs.setup.outputs.aws_role_arn }}
+      aws-assume-role-arn: ${{ needs.setup.outputs.aws-assume-role-arn }}
       aws-region: 'us-east-1'
     secrets: inherit
 
