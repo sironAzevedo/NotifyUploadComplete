@@ -41,7 +41,10 @@ jobs:
       aws-region: 'us-east-1'
       environment: ${{ needs.setup.outputs.environment }}
     secrets:
-      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN && needs.setup.outputs.environment == 'dev' || secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+      aws-assume-role-arn: ${{ fromJSON('{
+        "prod": "' + secrets.PROD_AWS_ASSUME_ROLE_ARN + '",
+        "dev": "' + secrets.DEV_AWS_ASSUME_ROLE_ARN + '"
+      }')[needs.setup.outputs.environment] }}
 
   deploy:
     name: Terraform Apply
