@@ -6,10 +6,10 @@ on:
       - main
       - develop
       - 'feature/**'
-    pull_request:
-      branches:
-        - main
-        - develop
+  pull_request:
+    branches:
+      - main
+      - develop
     paths:
       - 'app/**'
       - 'infra/terraform/**'
@@ -19,22 +19,54 @@ permissions:
   contents: read
 
 jobs:
+  # Job unificado que sempre executa a validação primeiro
   validate:
-    # Valida em todas as branches exceto main
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && startsWith(github.ref_name, 'feature/'))
-    uses: ./.github/workflows/terraform-validate.yml
+    runs-on: ubuntu-latest
+    outputs:
+      # Passa o ambiente determinado para os próximos jobs
+      environment: ${{ steps.setup.outputs.environment }}
+
+    steps:
+      - name: Determine Environment and Role
+        id: setup
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "main" ]] || \
+             [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" ]]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+            echo "aws_role_arn=${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+            echo "aws_role_arn=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Call Reusable Validate Workflow
+        uses: ./.github/workflows/terraform-validate.yml
+        with:
+          environment: ${{ steps.setup.outputs.environment }}
+          aws-assume-role-arn: ${{ steps.setup.outputs.aws_role_arn }}
+          aws-region: 'us-east-1'
+        secrets: inherit
+
+  # Deploy para DEV, dependente do sucesso da validação
+  deploy-dev:
+    needs: validate
+    # Só executa em push para 'develop' E se o ambiente validado for 'dev'
+    if: github.event_name == 'push' && github.ref_name == 'develop' && needs.validate.outputs.environment == 'dev'
+    uses: ./.github/workflows/terraform-apply.yml
     with:
-      environment: ${{ (github.event_name == 'pull_request' && github.base_ref == 'main') && 'prod' || 'dev' }}
-      aws-assume-role-arn: ${{ (github.event_name == 'pull_request' && github.base_ref == 'main') && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      environment: 'dev'
+      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
       aws-region: 'us-east-1'
     secrets: inherit
 
-  deploy:
-    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'develop')
+  # Deploy para PROD, dependente do sucesso da validação
+  deploy-prod:
     needs: validate
+    # Só executa em push para 'main' E se o ambiente validado for 'prod'
+    if: github.event_name == 'push' && github.ref_name == 'main' && needs.validate.outputs.environment == 'prod'
     uses: ./.github/workflows/terraform-apply.yml
     with:
-      environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
-      aws-assume-role-arn: ${{ github.ref_name == 'main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      environment: 'prod'
+      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
       aws-region: 'us-east-1'
     secrets: inherit
