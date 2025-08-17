@@ -51,7 +51,9 @@ jobs:
       environment: ${{ needs.setup.outputs.environment }}
       aws-assume-role-arn: ${{ needs.setup.outputs.aws_role_arn }}
       aws-region: 'us-east-1'
-    secrets: inherit
+    secrets:
+      DEV_AWS_ASSUME_ROLE_ARN: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      PROD_AWS_ASSUME_ROLE_ARN: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}      
 
   deploy-dev:
     needs: [setup, validate]
