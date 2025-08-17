@@ -1,0 +1,40 @@
+name: Terraform CI/CD Orchestrator
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+    pull_request:
+      branches:
+        - main
+        - develop
+    paths:
+      - 'app/**'
+      - 'infra/terraform/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  validate:
+    # Valida em todas as branches exceto main
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && startsWith(github.ref_name, 'feature/'))
+    uses: ./.github/workflows/terraform-validate.yml
+    with:
+      environment: ${{ (github.event_name == 'pull_request' && github.base_ref == 'main') && 'prod' || 'dev' }}
+      aws-assume-role-arn: ${{ (github.event_name == 'pull_request' && github.base_ref == 'main') && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      aws-region: 'us-east-1'
+    secrets: inherit
+
+  deploy:
+    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'develop')
+    needs: validate
+    uses: ./.github/workflows/terraform-apply.yml
+    with:
+      environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+      aws-assume-role-arn: ${{ github.ref_name == 'main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      aws-region: 'us-east-1'
+    secrets: inherit

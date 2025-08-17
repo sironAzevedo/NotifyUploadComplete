@@ -1,0 +1,104 @@
+name: Terraform Destroy Infrastructure
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      aws-assume-role-arn:
+        type: string
+        required: true
+      aws-region:
+  
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to destroy'
+        required: true
+        type: choice
+        options: ['dev', 'prod']
+      confirm-destroy:
+        description: 'Type "confirm" to proceed with destruction'
+        required: true
+        type: string
+
+concurrency:
+  group: destroy-${{ inputs.environment }}
+  cancel-in-progress: true
+
+jobs:
+  destroy_infrastructure:
+    runs-on: ubuntu-latest
+    env:
+      TF_WORKSPACE: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Verificação manual de confirmação
+      - name: Confirm Destruction
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ inputs.confirm-destroy }}" != "confirm" ]; then
+            echo "::error::Destruction not confirmed. You must type 'confirm' to proceed."
+            exit 1
+          fi
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-assume-role-arn }}
+          role-session-name: GitHub_Destroy_Action
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+          terraform_wrapper: false
+
+      - name: Initialize Terraform
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="key=${{ github.event.repository.name }}/${{ inputs.environment }}" \
+            -backend-config="region=${{ inputs.aws-region }}"
+
+      - name: Select Terraform Workspace
+        working-directory: infra/terraform
+        run: |
+          terraform workspace select ${{ inputs.environment }} || \
+          { echo "::error::Workspace ${{ inputs.environment }} not found"; exit 1; }
+
+      - name: Get S3 Bucket Info
+        id: s3-info
+        working-directory: infra/terraform
+        run: |
+          BUCKET=$(terraform output -raw lambda_s3_bucket 2>/dev/null || echo "")
+          KEY=$(terraform output -raw lambda_s3_key 2>/dev/null || echo "NotifyUploadComplete.zip")
+          echo "bucket=${BUCKET}" >> $GITHUB_OUTPUT
+          echo "key=${KEY}" >> $GITHUB_OUTPUT
+
+      - name: Delete Lambda Artifact from S3
+        if: steps.s3-info.outputs.bucket != ''
+        run: |
+          echo "Removing s3://${{ steps.s3-info.outputs.bucket }}/${{ steps.s3-info.outputs.key }}"
+          aws s3 rm "s3://${{ steps.s3-info.outputs.bucket }}/${{ steps.s3-info.outputs.key }}" || \
+          echo "::warning::Failed to delete Lambda artifact"
+
+      - name: Terraform Destroy
+        working-directory: infra/terraform
+        run: |
+          terraform destroy \
+            -var-file="../envs/${{ inputs.environment }}/terraform.tfvars" \
+            -auto-approve
+
+      - name: Cleanup Workspace
+        if: always()
+        working-directory: infra/terraform
+        run: |
+          terraform workspace select default
+          terraform workspace delete ${{ inputs.environment }} || \
+          echo "::warning::Could not delete workspace (may contain resources or be current workspace)"

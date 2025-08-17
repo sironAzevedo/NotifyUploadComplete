@@ -1,5 +1,5 @@
 resource "aws_iam_role" "notify_upload_complete" {
-  name = "${var.lambda_function_name}-role-${var.environment}"
+  name = "${local.name_prefix}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -15,12 +15,12 @@ resource "aws_iam_role" "notify_upload_complete" {
   })
 
   tags = {
-    Name = "${var.lambda_function_name}-role-${var.environment}"
+    Name = "${local.name_prefix}-role"
   }
 }
 
 resource "aws_iam_policy" "notify_upload_complete" {
-  name        = "${var.lambda_function_name}-role-${var.environment}"
+  name        = "${local.name_prefix}-role"
   description = "Permissions for NotifyUploadComplete Lambda function"
 
   policy = jsonencode({
@@ -42,15 +42,6 @@ resource "aws_iam_policy" "notify_upload_complete" {
         }
       },
       {
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        "Resource": "arn:aws:logs:us-east-1:547455868104:*"
-      },
-      {
           "Effect": "Allow",
           "Action": [
               "s3:GetObject",
@@ -58,7 +49,7 @@ resource "aws_iam_policy" "notify_upload_complete" {
               "s3:DeleteObject",
               "s3:ListBucket"
           ],
-          "Resource": "*"
+          "Resource": local.s3_policy_resource_arns
       }
     ]
   })

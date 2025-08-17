@@ -1,7 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "orquestrador-terraform-tfstates"
-    key    = "orquestrador-terraform-state.tfstate"
+    bucket = "sironazevedo-notifyuploadcomplete-terraform-tfstates"
     region = "us-east-1"
   }
 }

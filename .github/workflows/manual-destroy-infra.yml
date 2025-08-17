@@ -1,0 +1,38 @@
+name: MANUAL - Destroy Terraform Infra
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente que será destruído'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+      confirm:
+        description: 'Digite "destruir" para confirmar a operação.'
+        required: true
+
+permissions:
+  id-token: write # Necessário para autenticação OIDC com a AWS
+  contents: read  # Necessário para fazer o checkout do código
+
+jobs:
+  destroy:
+    if: inputs.confirm == 'destruir'
+    uses: ./.github/workflows/terraform-destroy.yml
+    with:
+      environment: ${{ inputs.environment }}
+      aws-assume-role-arn: ${{ inputs.environment == 'prod' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      aws-region: 'us-east-1' # Ou sua região padrão
+    secrets: inherit
+    
+  cancel-if-not-confirmed:
+    if: inputs.confirm != 'destruir'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel workflow
+        run: |
+          echo "::error::Ação cancelada. A confirmação 'destruir' não foi inserida corretamente."
+          exit 1
