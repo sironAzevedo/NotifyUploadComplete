@@ -11,16 +11,6 @@ variable "environment" {
 }
 
 ### LAMBDA ###
-variable "lambda_s3_bucket" {
-  type        = string
-  description = "Nome do bucket S3 onde o pacote da Lambda será armazenado"
-}
-
-variable "lambda_s3_key" {
-  type        = string
-  description = "Chave (path) no bucket S3 para o pacote da Lambda"
-}
-
 variable "lambda_runtime" {
   type    = string
   default = "python3.12"
@@ -29,11 +19,6 @@ variable "lambda_runtime" {
 variable "lambda_handler" {
   type    = string
   default = "main.lambda_handler"
-}
-
-variable "lambda_function_name" {
-  type    = string
-  default = "NotifyUploadComplete"
 }
 
 variable "lambda_timeout" {
@@ -48,6 +33,12 @@ variable "lambda_memory_size" {
   default     = 128
 }
 
+variable "lambda_allowed_s3_bucket_arns" {
+  description = "Lista de ARNs de buckets S3 que a função Lambda terá permissão para acessar."
+  type        = list(string)
+  default     = []
+}
+
 ### SQS ###
 
 variable "sqs_message_retention_seconds" {
@@ -59,4 +50,9 @@ variable "sqs_message_retention_seconds" {
 variable "sqs_queue_name" {
   type    = string
   default = "NotifyUploadComplete"
+}
+
+variable "source_s3_bucket_arn" {
+  description = "ARN do bucket S3 existente que irá disparar a notificação para a Lambda."
+  type        = string
 }
