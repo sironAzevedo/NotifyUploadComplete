@@ -33,7 +33,7 @@ jobs:
             echo "assume-role=${{ env.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
             echo "environment=prod" >> $GITHUB_OUTPUT
           else
-            echo "Fluxo de dev"
+            echo "Fluxo de dev ${{ env.DEV_AWS_ASSUME_ROLE_ARN }}"
             echo "assume-role=${{ env.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
             echo "environment=dev" >> $GITHUB_OUTPUT
           fi
