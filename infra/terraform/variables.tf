@@ -21,11 +21,6 @@ variable "lambda_handler" {
   default = "main.lambda_handler"
 }
 
-variable "lambda_function_name" {
-  type    = string
-  default = "NotifyUploadComplete"
-}
-
 variable "lambda_timeout" {
   description = "Timeout for Lambda function in seconds"
   type        = number
