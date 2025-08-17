@@ -52,7 +52,7 @@ jobs:
     with:
       aws-region: 'us-east-1'
       environment: ${{ needs.setup.outputs.environment }}
-      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
 
   deploy:
     name: Terraform Apply
