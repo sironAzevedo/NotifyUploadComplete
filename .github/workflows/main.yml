@@ -37,15 +37,15 @@ jobs:
           fi
 
   validate:
-  name: Terraform Validate
-  needs: setup
-  uses: ./.github/workflows/terraform-validate.yml
-  with:
-    aws-region: 'us-east-1'
-    environment: ${{ needs.setup.outputs.environment }}
-    aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-  secrets:  # Isso é necessário para workflows reutilizáveis
-    DEV_AWS_ASSUME_ROLE_ARN: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+    name: Terraform Validate
+    needs: setup
+    uses: ./.github/workflows/terraform-validate.yml
+    with:
+      aws-region: 'us-east-1'
+      environment: ${{ needs.setup.outputs.environment }}
+      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+    secrets:  # Isso é necessário para workflows reutilizáveis
+      DEV_AWS_ASSUME_ROLE_ARN: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
 
   deploy:
     name: Terraform Apply
