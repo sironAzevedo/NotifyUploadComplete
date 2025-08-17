@@ -19,17 +19,25 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  # PASSO 1: Job para determinar o ambiente e outras variáveis dinâmicas
+  setup:
     runs-on: ubuntu-latest
     outputs:
-      environment: ${{ steps.setup.outputs.environment }}
+      environment: ${{ steps.determine_env.outputs.environment }}
+      aws_role_arn: ${{ steps.determine_env.outputs.aws_role_arn }}
+      is_deploy_event: ${{ steps.determine_env.outputs.is_deploy_event }}
 
     steps:
-      - name: Determine Environment and Role
-        id: setup
+      - name: Determine dynamic values
+        id: determine_env
         run: |
-          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "main" ]] || \
-             [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" ]]; then
+          IS_DEPLOY='false'
+          if [[ "${{ github.event_name }}" == "push" && ("${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "develop") ]]; then
+            IS_DEPLOY='true'
+          fi
+          echo "is_deploy_event=${IS_DEPLOY}" >> $GITHUB_OUTPUT
+
+          if [[ "${{ github.ref_name }}" == "main" ]] || [[ "${{ github.base_ref }}" == "main" ]]; then
             echo "environment=prod" >> $GITHUB_OUTPUT
             echo "aws_role_arn=${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
           else
@@ -37,34 +45,34 @@ jobs:
             echo "aws_role_arn=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Call Reusable Validate Workflow
-        uses: ./.github/workflows/terraform-validate.yml
-        with:
-          environment: ${{ steps.setup.outputs.environment }}
-          aws-assume-role-arn: ${{ steps.setup.outputs.aws_role_arn }}
-          aws-region: 'us-east-1'
-        # A linha "secrets: inherit" foi removida daqui, pois é inválida em um "step"
+  # PASSO 2: Job que chama o workflow de validação
+  validate:
+    needs: setup
+    uses: ./.github/workflows/terraform-validate.yml
+    with:
+      environment: ${{ needs.setup.outputs.environment }}
+      aws-assume-role-arn: ${{ needs.setup.outputs.aws_role_arn }}
+      aws-region: 'us-east-1'
+    secrets: inherit
 
+  # PASSO 3: Job que chama o deploy de DEV
   deploy-dev:
-    needs: validate
-    runs-on: ubuntu-latest # <-- MUDANÇA: Job agora é "normal"
-    if: github.event_name == 'push' && github.ref_name == 'develop' && needs.validate.outputs.environment == 'dev'
-    steps: # <-- MUDANÇA: Adicionado bloco de steps
-      - name: Call Reusable Apply Workflow for Dev
-        uses: ./.github/workflows/terraform-apply.yml
-        with:
-          environment: 'dev'
-          aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-          aws-region: 'us-east-1'
+    needs: [setup, validate]
+    if: needs.setup.outputs.is_deploy_event == 'true' && needs.setup.outputs.environment == 'dev'
+    uses: ./.github/workflows/terraform-apply.yml
+    with:
+      environment: 'dev'
+      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      aws-region: 'us-east-1'
+    secrets: inherit
 
+  # PASSO 4: Job que chama o deploy de PROD
   deploy-prod:
-    needs: validate
-    runs-on: ubuntu-latest # <-- MUDANÇA: Job agora é "normal"
-    if: github.event_name == 'push' && github.ref_name == 'main' && needs.validate.outputs.environment == 'prod'
-    steps: # <-- MUDANÇA: Adicionado bloco de steps
-      - name: Call Reusable Apply Workflow for Prod
-        uses: ./.github/workflows/terraform-apply.yml
-        with:
-          environment: 'prod'
-          aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
-          aws-region: 'us-east-1'
+    needs: [setup, validate]
+    if: needs.setup.outputs.is_deploy_event == 'true' && needs.setup.outputs.environment == 'prod'
+    uses: ./.github/workflows/terraform-apply.yml
+    with:
+      environment: 'prod'
+      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+      aws-region: 'us-east-1'
+    secrets: inherit
