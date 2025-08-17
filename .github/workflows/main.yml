@@ -22,7 +22,7 @@ jobs:
     name: Terraform Validate
     uses: ./.github/workflows/terraform-validate.yml
     with:
-      aws-assume-role: ${{ github.ref == 'refs/heads/main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      aws-assume-role-arn: ${{ github.ref == 'refs/heads/main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
 
   deploy:
     name: Terraform Apply
@@ -30,4 +30,4 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
     with:
-      aws-assume-role: ${{ github.ref == 'refs/heads/main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      aws-assume-role-arn: ${{ github.ref == 'refs/heads/main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
