@@ -31,7 +31,7 @@ resource "aws_iam_policy" "notify_upload_complete" {
         Action = [
             "sqs:SendMessage",
             "sqs:SendMessageBatch",
-            "sqs:GetQueueUrl"
+            "sqs:GetQueueUrl",
             "sqs:GetQueueAttributes"
         ]
         Resource = aws_sqs_queue.notify_upload_complete.arn

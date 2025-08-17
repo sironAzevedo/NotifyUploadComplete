@@ -38,11 +38,14 @@ jobs:
 
           if [[ "${{ github.ref_name }}" == "main" ]] || [[ "${{ github.base_ref }}" == "main" ]]; then
             echo "environment=prod" >> $GITHUB_OUTPUT
-            echo "aws_role_arn=${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+            echo "aws_role_arn=${PROD_ROLE}" >> $GITHUB_OUTPUT
           else
             echo "environment=dev" >> $GITHUB_OUTPUT
-            echo "aws_role_arn=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+            echo "aws_role_arn=${DEV_ROLE}" >> $GITHUB_OUTPUT
           fi
+        env:
+          PROD_ROLE: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+          DEV_ROLE: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
 
   validate:
     needs: setup

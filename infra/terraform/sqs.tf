@@ -7,7 +7,3 @@ resource "aws_sqs_queue" "notify_upload_complete" {
   message_retention_seconds   = var.sqs_message_retention_seconds
   tags                        = local.common_tags
 }
-
-output "sqs_queue_url" {
-  value = aws_sqs_queue.notify_upload_complete.id
-}

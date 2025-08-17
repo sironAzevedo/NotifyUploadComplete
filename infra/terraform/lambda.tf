@@ -18,7 +18,7 @@ resource "aws_lambda_function" "notify_upload_complete" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.lambda_basic_execution
+    aws_iam_role_policy_attachment.lambda_basic_execution,
     aws_cloudwatch_log_group.notify_upload_complete
   ]
 }

@@ -15,6 +15,10 @@ output "sqs_queue_url" {
   value       = aws_sqs_queue.notify_upload_complete.url
 }
 
+output "sqs_queue_id" {
+  value = aws_sqs_queue.notify_upload_complete.id
+}
+
 output "lambda_s3_bucket" {
   value = aws_s3_bucket.lambda_bucket.bucket
 }
