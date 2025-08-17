@@ -22,22 +22,26 @@ jobs:
   # Job para destruir o ambiente de desenvolvimento
   destroy-dev:
     if: inputs.confirm == 'destruir' && inputs.environment == 'dev'
-    uses: ./.github/workflows/terraform-destroy.yml
-    with:
-      environment: 'dev'
-      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-      aws-region: 'us-east-1' # Ou sua região padrão
-    secrets: inherit
+    runs-on: ubuntu-latest # <-- MUDANÇA
+    steps: # <-- MUDANÇA
+      - name: Destroy Workflow for Dev
+        uses: ./.github/workflows/terraform-destroy.yml
+        with:
+          environment: 'dev'
+          aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+          aws-region: 'us-east-1'
 
   # Job para destruir o ambiente de produção
   destroy-prod:
     if: inputs.confirm == 'destruir' && inputs.environment == 'prod'
-    uses: ./.github/workflows/terraform-destroy.yml
-    with:
-      environment: 'prod'
-      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
-      aws-region: 'us-east-1' # Ou sua região padrão
-    secrets: inherit
+    runs-on: ubuntu-latest # <-- MUDANÇA
+    steps: # <-- MUDANÇA
+      - name: Destroy Workflow for Prod
+        uses: ./.github/workflows/terraform-destroy.yml
+        with:
+          environment: 'prod'
+          aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+          aws-region: 'us-east-1'
     
   # Job para cancelar a execução se a confirmação estiver errada
   cancel-if-not-confirmed:
