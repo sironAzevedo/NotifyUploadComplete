@@ -23,14 +23,17 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       assume-role: ${{ steps.set-role.outputs.assume-role }}
+      environment: ${{ steps.set-role.outputs.environment }}
     steps:
       - name: Define AWS Assume Role
         id: set-role
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "assume-role=${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+            echo "environment=prod" >> $GITHUB_OUTPUT
           else
             echo "assume-role=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+            echo "environment=dev" >> $GITHUB_OUTPUT
           fi
 
   validate:
@@ -38,6 +41,8 @@ jobs:
     needs: setup
     uses: ./.github/workflows/terraform-validate.yml
     secrets:
+      aws-region: 'us-east-1'
+      environment: ${{ needs.setup.outputs.environment }}
       aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
 
   deploy:
@@ -46,4 +51,6 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
     secrets:
+      aws-region: 'us-east-1'
+      environment: ${{ needs.setup.outputs.environment }}
       aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
