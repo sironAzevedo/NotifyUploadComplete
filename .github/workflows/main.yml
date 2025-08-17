@@ -56,23 +56,19 @@ jobs:
   deploy-dev:
     needs: [setup, validate]
     if: needs.setup.outputs.is_deploy_event == 'true' && needs.setup.outputs.environment == 'dev'
-    runs-on: ubuntu-latest # Change: Convert to a standard job
-    steps: # Change: Add steps block
-      - name: Call Reusable Apply Workflow for Dev
-        uses: ./.github/workflows/terraform-apply.yml
-        with:
-          environment: 'dev'
-          aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-          aws-region: 'us-east-1'
+    uses: ./.github/workflows/terraform-apply.yml
+    with:
+      environment: ${{ needs.setup.outputs.environment }}
+      aws-assume-role-arn: ${{ needs.setup.outputs.aws-assume-role-arn }}
+      aws-region: 'us-east-1'
+    secrets: inherit
 
   deploy-prod:
     needs: [setup, validate]
     if: needs.setup.outputs.is_deploy_event == 'true' && needs.setup.outputs.environment == 'prod'
-    runs-on: ubuntu-latest # Change: Convert to a standard job
-    steps: # Change: Add steps block
-      - name: Call Reusable Apply Workflow for Prod
-        uses: ./.github/workflows/terraform-apply.yml
-        with:
-          environment: 'prod'
-          aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
-          aws-region: 'us-east-1'
+    uses: ./.github/workflows/terraform-apply.yml
+    with:
+      environment: ${{ needs.setup.outputs.environment }}
+      aws-assume-role-arn: ${{ needs.setup.outputs.aws-assume-role-arn }}
+      aws-region: 'us-east-1'
+    secrets: inherit
