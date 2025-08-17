@@ -19,11 +19,9 @@ permissions:
   contents: read
 
 jobs:
-  # Job unificado que sempre executa a validação primeiro
   validate:
     runs-on: ubuntu-latest
     outputs:
-      # Passa o ambiente determinado para os próximos jobs
       environment: ${{ steps.setup.outputs.environment }}
 
     steps:
@@ -45,28 +43,28 @@ jobs:
           environment: ${{ steps.setup.outputs.environment }}
           aws-assume-role-arn: ${{ steps.setup.outputs.aws_role_arn }}
           aws-region: 'us-east-1'
-        secrets: inherit
+        # A linha "secrets: inherit" foi removida daqui, pois é inválida em um "step"
 
-  # Deploy para DEV, dependente do sucesso da validação
   deploy-dev:
     needs: validate
-    # Só executa em push para 'develop' E se o ambiente validado for 'dev'
+    runs-on: ubuntu-latest # <-- MUDANÇA: Job agora é "normal"
     if: github.event_name == 'push' && github.ref_name == 'develop' && needs.validate.outputs.environment == 'dev'
-    uses: ./.github/workflows/terraform-apply.yml
-    with:
-      environment: 'dev'
-      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-      aws-region: 'us-east-1'
-    secrets: inherit
+    steps: # <-- MUDANÇA: Adicionado bloco de steps
+      - name: Call Reusable Apply Workflow for Dev
+        uses: ./.github/workflows/terraform-apply.yml
+        with:
+          environment: 'dev'
+          aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+          aws-region: 'us-east-1'
 
-  # Deploy para PROD, dependente do sucesso da validação
   deploy-prod:
     needs: validate
-    # Só executa em push para 'main' E se o ambiente validado for 'prod'
+    runs-on: ubuntu-latest # <-- MUDANÇA: Job agora é "normal"
     if: github.event_name == 'push' && github.ref_name == 'main' && needs.validate.outputs.environment == 'prod'
-    uses: ./.github/workflows/terraform-apply.yml
-    with:
-      environment: 'prod'
-      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
-      aws-region: 'us-east-1'
-    secrets: inherit
+    steps: # <-- MUDANÇA: Adicionado bloco de steps
+      - name: Call Reusable Apply Workflow for Prod
+        uses: ./.github/workflows/terraform-apply.yml
+        with:
+          environment: 'prod'
+          aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+          aws-region: 'us-east-1'
