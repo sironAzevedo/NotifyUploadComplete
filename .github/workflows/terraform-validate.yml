@@ -56,5 +56,5 @@ jobs:
         working-directory: infra/terraform
         run: |
           terraform plan \
-            -var-file="./envs/${{ inputs.environment }}/terraform.tfvars" \
+            -var-file="./${{ inputs.environment }}/terraform.tfvars" \
             -out="${{ inputs.environment }}.plan"

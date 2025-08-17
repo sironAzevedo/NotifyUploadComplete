@@ -94,7 +94,7 @@ jobs:
         working-directory: infra/terraform
         run: |
           terraform destroy \
-            -var-file="../envs/${{ inputs.environment }}/terraform.tfvars" \
+            -var-file="../${{ inputs.environment }}/terraform.tfvars" \
             -auto-approve
 
       - name: Cleanup Workspace
