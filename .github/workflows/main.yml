@@ -1,11 +1,14 @@
-name: Terraform CI/CD Orchestrator
+name: CI/CD Terraform AWS
 
 on:
   push:
     branches:
       - main
       - develop
-      - 'feature/**'
+      - 'feature/*'
+    paths:
+      - 'app/**'
+      - 'infra/terraform/**'
   pull_request:
     branches:
       - main
@@ -14,61 +17,17 @@ on:
       - 'app/**'
       - 'infra/terraform/**'
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      environment: ${{ steps.determine_env.outputs.environment }}
-      aws-assume-role-arn: ${{ steps.determine_env.outputs.aws-assume-role-arn }}
-      is_deploy_event: ${{ steps.determine_env.outputs.is_deploy_event }}
-
-    steps:
-      - name: Determine dynamic values
-        id: determine_env
-        run: |
-          IS_DEPLOY='false'
-          if [[ "${{ github.event_name }}" == "push" && ("${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "develop") ]]; then
-            IS_DEPLOY='true'
-          fi
-          echo "is_deploy_event=${IS_DEPLOY}" >> $GITHUB_OUTPUT
-
-          if [[ "${{ github.ref_name }}" == "main" ]] || [[ "${{ github.base_ref }}" == "main" ]]; then
-            echo "environment=prod" >> $GITHUB_OUTPUT
-            echo "aws-assume-role-arn=${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
-          else
-            echo "environment=dev" >> $GITHUB_OUTPUT
-            echo "aws-assume-role-arn=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
-          fi
-
   validate:
-    needs: setup
+    name: Terraform Validate
     uses: ./.github/workflows/terraform-validate.yml
     with:
-      environment: ${{ needs.setup.outputs.environment }}
-      aws-assume-role-arn: arn:aws:iam::547455868104:role/github-action-sironazevedo-pipeline
-      aws-region: 'us-east-1'
-    secrets: inherit
+      aws-assume-role: ${{ github.ref == 'refs/heads/main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
 
-  deploy-dev:
-    needs: [setup, validate]
-    if: needs.setup.outputs.is_deploy_event == 'true' && needs.setup.outputs.environment == 'dev'
+  deploy:
+    name: Terraform Apply
+    needs: validate
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
     with:
-      environment: ${{ needs.setup.outputs.environment }}
-      aws-assume-role-arn: ${{ needs.setup.outputs.aws-assume-role-arn }}
-      aws-region: 'us-east-1'
-    secrets: inherit
-
-  deploy-prod:
-    needs: [setup, validate]
-    if: needs.setup.outputs.is_deploy_event == 'true' && needs.setup.outputs.environment == 'prod'
-    uses: ./.github/workflows/terraform-apply.yml
-    with:
-      environment: ${{ needs.setup.outputs.environment }}
-      aws-assume-role-arn: ${{ needs.setup.outputs.aws-assume-role-arn }}
-      aws-region: 'us-east-1'
-    secrets: inherit
+      aws-assume-role: ${{ github.ref == 'refs/heads/main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
