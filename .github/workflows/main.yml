@@ -19,6 +19,15 @@ permissions:
   contents: read
 
 jobs:
+  steps:
+  - name: Verificar se secret existe
+    run: |
+      if [ -z "${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" ]; then
+        echo "Secret não está definido"
+      else
+        echo "Secret está definido (mas o valor está oculto)"
+      fi
+      
   setup:
     runs-on: ubuntu-latest
     outputs:
@@ -44,8 +53,6 @@ jobs:
       aws-region: 'us-east-1'
       environment: ${{ needs.setup.outputs.environment }}
       aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-    secrets:  # Isso é necessário para workflows reutilizáveis
-      DEV_AWS_ASSUME_ROLE_ARN: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
 
   deploy:
     name: Terraform Apply
