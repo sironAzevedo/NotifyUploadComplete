@@ -1,13 +1,13 @@
 output "lambda_function_name" {
-  value = aws_lambda_function.notify_lambda.function_name
+  value = aws_lambda_function.notify_upload_complete.function_name
 }
 
 output "lambda_function_arn" {
-  value = aws_lambda_function.notify_lambda.arn
+  value = aws_lambda_function.notify_upload_complete.arn
 }
 
 output "sqs_queue_arn" {
-  value = aws_sqs_queue.notify_queue.arn
+  value = aws_sqs_queue.notify_upload_complete.arn
 }
 
 output "sqs_queue_url" {

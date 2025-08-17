@@ -23,6 +23,12 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 # Data source para obter o nome do bucket a partir do ARN fornecido
-data "aws_s3_bucket" "source_bucket" {
+data "aws_arn" "source_bucket_arn" {
   arn = var.source_s3_bucket_arn
+}
+
+# 2. Agora, usamos o 'resource' (que é o nome do bucket) extraído do ARN 
+#    para buscar os detalhes do bucket.
+data "aws_s3_bucket" "source_bucket" {
+  bucket = data.aws_arn.source_bucket_arn.resource
 }
