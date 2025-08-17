@@ -49,7 +49,7 @@ jobs:
     uses: ./.github/workflows/terraform-validate.yml
     with:
       environment: ${{ needs.setup.outputs.environment }}
-      aws-assume-role-arn: ${{ needs.setup.outputs.aws-assume-role-arn }}
+      aws-assume-role-arn: arn:aws:iam::547455868104:role/github-action-sironazevedo-pipeline
       aws-region: 'us-east-1'
     secrets: inherit
 
