@@ -81,4 +81,4 @@ jobs:
         working-directory: infra/terraform
         run: |
           BUCKET=$(terraform output -raw lambda_s3_bucket)
-          aws s3 cp ../../app/NotifyUploadComplete.zip s3://$BUCKET/NotifyUploadComplete.zip
+          aws s3 cp ../../app/NotifyUploadComplete.zip s3://$BUCKET/NotifyUploadComplete-${{ inputs.environment }}.zip
