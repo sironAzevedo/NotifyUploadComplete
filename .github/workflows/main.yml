@@ -22,24 +22,16 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      assume-role: ${{ steps.set-role.outputs.assume-role }}
       environment: ${{ steps.set-role.outputs.environment }}
     steps:
       - name: Define AWS Assume Role
         id: set-role
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            echo "Fluxo de prod"
-            echo "assume-role=${{ env.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
             echo "environment=prod" >> $GITHUB_OUTPUT
           else
-            echo "Fluxo de dev ${{ env.DEV_AWS_ASSUME_ROLE_ARN }}"
-            echo "assume-role=${{ env.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
             echo "environment=dev" >> $GITHUB_OUTPUT
           fi
-        env:
-          DEV_AWS_ASSUME_ROLE_ARN: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-          PROD_AWS_ASSUME_ROLE_ARN: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
 
   validate:
     name: Terraform Validate
@@ -48,7 +40,7 @@ jobs:
     with:
       aws-region: 'us-east-1'
       environment: ${{ needs.setup.outputs.environment }}
-      aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
+      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN && needs.setup.outputs.environment == 'dev' || secrets.PROD_AWS_ASSUME_ROLE_ARN }}
 
   deploy:
     name: Terraform Apply
