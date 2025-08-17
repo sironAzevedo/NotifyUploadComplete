@@ -18,7 +18,7 @@ on:
       - 'infra/terraform/**'
 
 jobs:
-  set-env:
+  setup:
     runs-on: ubuntu-latest
     outputs:
       assume-role: ${{ steps.set-role.outputs.assume-role }}
@@ -34,15 +34,15 @@ jobs:
 
   validate:
     name: Terraform Validate
-    needs: set-env
+    needs: setup
     uses: ./.github/workflows/terraform-validate.yml
     secrets:
-      aws-assume-role-arn: ${{ needs.set-env.outputs.assume-role }}
+      aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
 
   deploy:
     name: Terraform Apply
-    needs: [set-env, validate]
+    needs: [setup, validate]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
     secrets:
-      aws-assume-role-arn: ${{ needs.set-env.outputs.assume-role }}
+      aws-assume-role-arn: ${{ needs.setup.outputs.assume-role }}
