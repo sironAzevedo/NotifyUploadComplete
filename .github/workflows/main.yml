@@ -19,15 +19,6 @@ permissions:
   contents: read
 
 jobs:
-  steps:
-  - name: Verificar se secret existe
-    run: |
-      if [ -z "${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" ]; then
-        echo "Secret não está definido"
-      else
-        echo "Secret está definido (mas o valor está oculto)"
-      fi
-      
   setup:
     runs-on: ubuntu-latest
     outputs:
@@ -38,12 +29,15 @@ jobs:
         id: set-role
         run: |
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
-            echo "assume-role=${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+            echo "assume-role=${ env.PROD_AWS_ASSUME_ROLE_ARN }" >> $GITHUB_OUTPUT
             echo "environment=prod" >> $GITHUB_OUTPUT
           else
-            echo "assume-role=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+            echo "assume-role=${ env.DEV_AWS_ASSUME_ROLE_ARN }" >> $GITHUB_OUTPUT
             echo "environment=dev" >> $GITHUB_OUTPUT
           fi
+        env:
+          DEV_AWS_ASSUME_ROLE_ARN: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+          PROD_AWS_ASSUME_ROLE_ARN: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
 
   validate:
     name: Terraform Validate
