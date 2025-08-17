@@ -18,16 +18,31 @@ on:
       - 'infra/terraform/**'
 
 jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    outputs:
+      assume-role: ${{ steps.set-role.outputs.assume-role }}
+    steps:
+      - name: Define AWS Assume Role
+        id: set-role
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "assume-role=${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+          else
+            echo "assume-role=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
+          fi
+
   validate:
     name: Terraform Validate
+    needs: set-env
     uses: ./.github/workflows/terraform-validate.yml
-    with:
-      aws-assume-role-arn: ${{ github.ref == 'refs/heads/main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+    secrets:
+      aws-assume-role-arn: ${{ needs.set-env.outputs.assume-role }}
 
   deploy:
     name: Terraform Apply
-    needs: validate
+    needs: [set-env, validate]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
-    with:
-      aws-assume-role-arn: ${{ github.ref == 'refs/heads/main' && secrets.PROD_AWS_ASSUME_ROLE_ARN || secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+    secrets:
+      aws-assume-role-arn: ${{ needs.set-env.outputs.assume-role }}
