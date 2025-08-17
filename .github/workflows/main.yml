@@ -33,27 +33,15 @@ jobs:
             echo "environment=dev" >> $GITHUB_OUTPUT
           fi
 
-  validate_dev:
-    name: Terraform Validate (Dev)
+  validate:
+    name: Terraform Validate
     needs: setup
-    if: needs.setup.outputs.environment == 'dev'
     uses: ./.github/workflows/terraform-validate.yml
     with:
       aws-region: 'us-east-1'
-      environment: dev
+      environment: ${{ needs.setup.outputs.environment }}
     secrets:
       aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-
-  validate_prod:
-    name: Terraform Validate (Prod)
-    needs: setup
-    if: needs.setup.outputs.environment == 'prod'
-    uses: ./.github/workflows/terraform-validate.yml
-    with:
-      aws-region: 'us-east-1'
-      environment: prod
-    secrets:
-      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
 
   deploy:
     name: Terraform Apply
