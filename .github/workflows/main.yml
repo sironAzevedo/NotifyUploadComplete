@@ -19,7 +19,6 @@ permissions:
   contents: read
 
 jobs:
-  # PASSO 1: Job para determinar o ambiente e outras variáveis dinâmicas
   setup:
     runs-on: ubuntu-latest
     outputs:
@@ -45,7 +44,6 @@ jobs:
             echo "aws_role_arn=${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}" >> $GITHUB_OUTPUT
           fi
 
-  # PASSO 2: Job que chama o workflow de validação
   validate:
     needs: setup
     uses: ./.github/workflows/terraform-validate.yml
@@ -55,24 +53,26 @@ jobs:
       aws-region: 'us-east-1'
     secrets: inherit
 
-  # PASSO 3: Job que chama o deploy de DEV
   deploy-dev:
     needs: [setup, validate]
     if: needs.setup.outputs.is_deploy_event == 'true' && needs.setup.outputs.environment == 'dev'
-    uses: ./.github/workflows/terraform-apply.yml
-    with:
-      environment: 'dev'
-      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-      aws-region: 'us-east-1'
-    secrets: inherit
+    runs-on: ubuntu-latest # Change: Convert to a standard job
+    steps: # Change: Add steps block
+      - name: Call Reusable Apply Workflow for Dev
+        uses: ./.github/workflows/terraform-apply.yml
+        with:
+          environment: 'dev'
+          aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+          aws-region: 'us-east-1'
 
-  # PASSO 4: Job que chama o deploy de PROD
   deploy-prod:
     needs: [setup, validate]
     if: needs.setup.outputs.is_deploy_event == 'true' && needs.setup.outputs.environment == 'prod'
-    uses: ./.github/workflows/terraform-apply.yml
-    with:
-      environment: 'prod'
-      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
-      aws-region: 'us-east-1'
-    secrets: inherit
+    runs-on: ubuntu-latest # Change: Convert to a standard job
+    steps: # Change: Add steps block
+      - name: Call Reusable Apply Workflow for Prod
+        uses: ./.github/workflows/terraform-apply.yml
+        with:
+          environment: 'prod'
+          aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+          aws-region: 'us-east-1'
