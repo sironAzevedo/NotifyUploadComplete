@@ -10,6 +10,8 @@ on:
         type: string
         required: true
       aws-region:
+        type: string
+        required: true
   
   workflow_dispatch:
     inputs:
