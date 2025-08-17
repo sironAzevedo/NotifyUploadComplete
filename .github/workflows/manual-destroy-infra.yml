@@ -15,8 +15,8 @@ on:
         required: true
 
 permissions:
-  id-token: write # Necessário para autenticação OIDC com a AWS
-  contents: read  # Necessário para fazer o checkout do código
+  id-token: write
+  contents: read
 
 jobs:
   # Job para destruir o ambiente de desenvolvimento
