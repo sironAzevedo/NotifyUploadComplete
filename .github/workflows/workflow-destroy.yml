@@ -28,7 +28,6 @@ jobs:
         uses: ./.github/workflows/terraform-destroy.yml
         with:
           environment: 'dev'
-          aws-region: 'us-east-1'
         secrets:
           aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
 
@@ -41,7 +40,6 @@ jobs:
         uses: ./.github/workflows/terraform-destroy.yml
         with:
           environment: 'prod'
-          aws-region: 'us-east-1'
         secrets:
           aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
     
