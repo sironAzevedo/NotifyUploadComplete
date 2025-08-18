@@ -14,21 +14,25 @@ on:
       aws-assume-role-arn:
         required: true
   
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to destroy'
-        required: true
-        type: choice
-        options: ['dev', 'prod']
-      confirm-destroy:
-        description: 'Type "confirm" to proceed with destruction'
-        required: true
-        type: string
-      aws-region:
-        type: string
-        required: false
-        default: 'us-east-1'
+  # workflow_dispatch:
+  #   inputs:
+  #     environment:
+  #       description: 'Environment to destroy'
+  #       required: true
+  #       type: choice
+  #       options: ['dev', 'prod']
+  #     confirm-destroy:
+  #       description: 'Type "confirm" to proceed with destruction'
+  #       required: true
+  #       type: string
+  #     aws-region:
+  #       type: string
+  #       required: false
+  #       default: 'us-east-1'
+
+permissions:
+  id-token: write
+  contents: read
 
 concurrency:
   group: destroy-${{ inputs.environment }}
