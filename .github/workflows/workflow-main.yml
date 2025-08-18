@@ -26,15 +26,11 @@ jobs:
   deploy:
     name: Terraform Apply
     needs: [validate]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
-    
-    # --- SEÇÃO responsavel por realizar o Required reviewers configurado no github---
-    environment:
-      name: production # Deve ser o mesmo nome do ambiente criado no GitHub
-    # ---------------------------
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/terraform-apply.yml
     with:
       aws-region: 'us-east-1'
       environment: 'prod'
+      github_environment: 'production'
     secrets:
       aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
