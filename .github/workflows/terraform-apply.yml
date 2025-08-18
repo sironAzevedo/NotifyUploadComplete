@@ -81,7 +81,6 @@ jobs:
         run: |
           terraform plan \
             -var-file="./${{ inputs.environment }}/terraform.tfvars" \
-            -var="lambda_key=NotifyUploadComplete-${{ inputs.environment }}.zip" \
             -out="${{ inputs.environment }}.plan"
 
       - name: Terraform Apply (full infra)
