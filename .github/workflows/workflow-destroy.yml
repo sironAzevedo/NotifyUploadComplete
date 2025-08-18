@@ -21,34 +21,24 @@ permissions:
 jobs:
   # Job para destruir o ambiente de desenvolvimento
   destroy-dev:
-    if: inputs.confirm == 'destruir' && inputs.environment == 'dev'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Destroy Workflow for Dev
-        uses: ./.github/workflows/terraform-destroy.yml
-        with:
-          environment: 'dev'
-          aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+    if: ${{ github.event.inputs.confirm == 'destruir' && github.event.inputs.environment == 'dev' }}
+    uses: ./.github/workflows/terraform-destroy.yml
+    with:
+      environment: 'dev'
+    secrets:
+      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
   
   destroy-prod:
-    if: inputs.confirm == 'destruir' && inputs.environment == 'prod'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Destroy Workflow for Dev
-        uses: ./.github/workflows/terraform-destroy.yml
-        with:
-          environment: 'prod'
-          aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}  
+    if: ${{ github.event.inputs.confirm == 'destruir' && github.event.inputs.environment == 'prod' }}
+    uses: ./.github/workflows/terraform-destroy.yml
+    with:
+      environment: 'prod'
+    secrets:
+      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
     
   # Job para cancelar a execução se a confirmação estiver errada
   cancel-if-not-confirmed:
-    if: inputs.confirm != 'destruir'
+    if: ${{ github.event.inputs.confirm != 'destruir' }}
     runs-on: ubuntu-latest
     steps:
       - name: Cancel workflow
