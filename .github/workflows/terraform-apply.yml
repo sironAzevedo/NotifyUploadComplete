@@ -9,6 +9,9 @@ on:
       aws-region:
         type: string
         required: true
+      github_environment:
+        required: false
+        type: string
     secrets:
       aws-assume-role-arn:
         required: true
@@ -20,6 +23,7 @@ permissions:
 jobs:
   apply:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.github_environment }} # SEÇÃO responsavel por realizar o Required reviewers configurado no github.
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
