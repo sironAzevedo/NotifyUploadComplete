@@ -1,0 +1,105 @@
+name: Terraform Apply
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true      
+      aws-region:
+        type: string
+        required: true
+    secrets:
+      aws-assume-role-arn:
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws-assume-role-arn }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ inputs.aws-region }}
+
+      # 🔹 Cache para plugins do Terraform
+      - name: Cache Terraform providers
+        uses: actions/cache@v3
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('infra/terraform/**/*.tf') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      - name: Set TF_PLUGIN_CACHE_DIR
+        run: echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        working-directory: infra/terraform
+        run: |
+          terraform init \
+            -backend-config="key=${{ github.event.repository.name }}/${{ inputs.environment }}" \
+            -backend-config="region=${{ inputs.aws-region }}"
+
+      - name: Select or Create Workspace
+        working-directory: infra/terraform
+        run: |
+          terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
+
+      # 1) Criar só o bucket primeiro
+      - name: Terraform Apply (create bucket only)
+        working-directory: infra/terraform
+        run: |
+          if ! terraform state list | grep -q 'aws_s3_bucket.lambda_bucket'; then
+            terraform apply -auto-approve -target=aws_s3_bucket.lambda_bucket
+          else
+            echo "Lambda bucket already exists, skipping creation"
+          fi
+
+      # 2) Preparar e empacotar a Lambda
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build Lambda Package
+        working-directory: app
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt -t ./package
+          cp lambda_function.py package/
+          cd package
+          zip -r ../NotifyUploadComplete.zip .
+
+      # 3) Upload para o bucket que o Terraform criou
+      - name: Upload Lambda to S3
+        working-directory: infra/terraform
+        run: |
+          BUCKET=$(terraform output -raw lambda_s3_bucket)
+          aws s3 cp ../../app/NotifyUploadComplete.zip s3://$BUCKET/NotifyUploadComplete-${{ inputs.environment }}.zip
+
+      # 4) Agora sim aplicar o restante da infra (inclui Lambda apontando para o zip no S3)
+      - name: Terraform Plan
+        working-directory: infra/terraform
+        run: |
+          terraform plan \
+            -var-file="./${{ inputs.environment }}/terraform.tfvars" \
+            -out="${{ inputs.environment }}.plan"
+
+      - name: Terraform Apply (full infra)
+        working-directory: infra/terraform
+        run: terraform apply -auto-approve "${{ inputs.environment }}.plan"
