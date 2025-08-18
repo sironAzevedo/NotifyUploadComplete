@@ -31,7 +31,6 @@ jobs:
         uses: ./.github/workflows/terraform-destroy.yml
         with:
           environment: 'dev'
-        env:
           aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
   
   destroy-prod:
@@ -45,7 +44,6 @@ jobs:
         uses: ./.github/workflows/terraform-destroy.yml
         with:
           environment: 'prod'
-        env:
           aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}  
     
   # Job para cancelar a execução se a confirmação estiver errada
