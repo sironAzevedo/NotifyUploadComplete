@@ -10,25 +10,6 @@ on:
         type: string
         required: false
         default: 'us-east-1'
-    secrets:
-      aws-assume-role-arn:
-        required: true
-  
-  # workflow_dispatch:
-  #   inputs:
-  #     environment:
-  #       description: 'Environment to destroy'
-  #       required: true
-  #       type: choice
-  #       options: ['dev', 'prod']
-  #     confirm-destroy:
-  #       description: 'Type "confirm" to proceed with destruction'
-  #       required: true
-  #       type: string
-  #     aws-region:
-  #       type: string
-  #       required: false
-  #       default: 'us-east-1'
 
 permissions:
   id-token: write
@@ -43,24 +24,16 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TF_WORKSPACE: ${{ inputs.environment }}
+      AWS_ASSUME_ROLE_ARN: ${{ env.AWS_ASSUME_ROLE_ARN }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Verificação manual de confirmação
-      # - name: Confirm Destruction
-      #   if: github.event_name == 'workflow_dispatch'
-      #   run: |
-      #     if [ "${{ inputs.confirm-destroy }}" != "confirm" ]; then
-      #       echo "::error::Destruction not confirmed. You must type 'confirm' to proceed."
-      #       exit 1
-      #     fi
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.aws-assume-role-arn }}
+          role-to-assume: ${{ env.AWS_ASSUME_ROLE_ARN }}
           role-session-name: GitHub_Destroy_Action
           aws-region: ${{ inputs.aws-region }}
 
