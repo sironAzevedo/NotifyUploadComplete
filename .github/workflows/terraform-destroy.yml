@@ -60,7 +60,7 @@ jobs:
         working-directory: infra/terraform
         run: |
           BUCKET=$(terraform output -raw lambda_s3_bucket 2>/dev/null || echo "")
-          KEY=$(terraform output -raw lambda_s3_key 2>/dev/null || echo "NotifyUploadComplete.zip")
+          KEY=$(terraform output -raw lambda_s3_key 2>/dev/null || echo "NotifyUploadComplete-${{ inputs.environment }}.zip")
           echo "bucket=${BUCKET}" >> $GITHUB_OUTPUT
           echo "key=${KEY}" >> $GITHUB_OUTPUT
 
