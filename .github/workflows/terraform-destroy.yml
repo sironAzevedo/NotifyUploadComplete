@@ -8,7 +8,8 @@ on:
         required: true
       aws-region:
         type: string
-        required: true
+        required: false
+        default: 'us-east-1'
     secrets:
       aws-assume-role-arn:
         required: true
@@ -24,6 +25,10 @@ on:
         description: 'Type "confirm" to proceed with destruction'
         required: true
         type: string
+      aws-region:
+        type: string
+        required: false
+        default: 'us-east-1'
 
 concurrency:
   group: destroy-${{ inputs.environment }}
