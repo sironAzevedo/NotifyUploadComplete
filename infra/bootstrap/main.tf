@@ -26,13 +26,6 @@ resource "aws_s3_bucket" "lambda_bucket" {
   bucket        = local.name_backet_lambda
   force_destroy = true
   tags          = local.common_tags
-
-  lifecycle {
-    precondition {
-      condition     = local.lambda_bucket_existing ? aws_s3_bucket.lambda_bucket[0].bucket == local.name_backet_lambda : true
-      error_message = "Bucket name mismatch between external check and resource"
-    }
-  }
 }
 
 resource "aws_s3_bucket" "tfstate" {
