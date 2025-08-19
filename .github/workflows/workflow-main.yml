@@ -19,14 +19,7 @@ jobs:
     uses: ./.github/workflows/terraform-validate.yml
     with:
       environment: 'prod'
-    secrets:
-      aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
-  
-  bootstrap:
-    name: Terraform Validate
-    uses: ./.github/workflows/terraform-bootstrap.yml
-    with:
-      environment: 'prod'
+      lambda_bucket_name: ${{ needs.bootstrap.outputs.lambda_bucket_name }}
     secrets:
       aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
 
