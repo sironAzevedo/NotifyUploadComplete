@@ -1,10 +1,9 @@
-#!/usr/bin/env bash
-set -e
+#!/bin/bash
+BUCKET_NAME=$1
 
-BUCKET_NAME=$(jq -r .bucket_name <<< "$1")
-
-if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
-  echo "{\"exists\": true}"
+if aws s3 ls "s3://$BUCKET_NAME" 2>&1 | grep -q 'NoSuchBucket'
+then
+  echo "{ \"exists\": false }"
 else
-  echo "{\"exists\": false}"
+  echo "{ \"exists\": true }"
 fi
