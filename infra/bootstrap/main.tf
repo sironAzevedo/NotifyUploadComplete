@@ -1,12 +1,12 @@
 data "external" "lambda_bucket_existing" {
-  program = ["bash", "${path.module}/infra/bootstrap/check_s3.sh", local.name_backet_lambda]
+  program = ["bash", "${path.module}/check_s3.sh", local.name_backet_lambda]
   query = {
     bucket_name = local.name_backet_lambda
   }
 }
 
 data "external" "tfstate_bucket_existing" {
-  program = ["bash", "${path.module}/infra/bootstrap/check_s3.sh", local.bucket_name_tfstate]
+  program = ["bash", "${path.module}/check_s3.sh", local.bucket_name_tfstate]
   query = {
     bucket_name = local.bucket_name_tfstate
   }
