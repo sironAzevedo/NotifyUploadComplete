@@ -1,5 +1,6 @@
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket = local.name_backet_lambda
+  bucket        = local.name_backet_lambda
+  force_destroy = true
 
   tags = {
     Name    = local.name_backet_lambda

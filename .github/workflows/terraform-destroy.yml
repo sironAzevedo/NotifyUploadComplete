@@ -46,6 +46,7 @@ jobs:
         working-directory: infra/terraform
         run: |
           terraform init \
+            -backend-config="bucket=notifyuploadcomplete-terraform-tfstates-${{ inputs.environment }}" \
             -backend-config="key=${{ github.event.repository.name }}/${{ inputs.environment }}" \
             -backend-config="region=${{ inputs.aws-region }}"
 
