@@ -7,7 +7,7 @@ on:
     branches: [develop]
     paths:
       - 'app/**'
-      - 'infra/terraform/**'
+      - 'infra/**'
 
 permissions:
   id-token: write
@@ -18,7 +18,14 @@ jobs:
     name: Terraform Validate
     uses: ./.github/workflows/terraform-validate.yml
     with:
-      aws-region: 'us-east-1'
+      environment: 'dev'
+    secrets:
+      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+    
+  bootstrap:
+    name: Terraform Validate
+    uses: ./.github/workflows/terraform-bootstrap.yml
+    with:
       environment: 'dev'
     secrets:
       aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
@@ -29,7 +36,6 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
     with:
-      aws-region: 'us-east-1'
       environment: 'dev'
     secrets:
       aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}

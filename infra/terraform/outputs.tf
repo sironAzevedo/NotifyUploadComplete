@@ -20,7 +20,7 @@ output "sqs_queue_id" {
 }
 
 output "lambda_s3_bucket" {
-  value = aws_s3_bucket.lambda_bucket.bucket
+  value = local.name_backet_lambda
 }
 
 output "lambda_s3_key" {

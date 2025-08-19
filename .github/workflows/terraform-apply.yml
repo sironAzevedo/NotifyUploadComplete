@@ -8,7 +8,8 @@ on:
         required: true      
       aws-region:
         type: string
-        required: true
+        required: false
+        default: 'us-east-1'
       github_environment:
         required: false
         type: string
@@ -56,6 +57,7 @@ jobs:
         working-directory: infra/terraform
         run: |
           terraform init \
+            -var="environment=${{ inputs.environment }}" \
             -backend-config="bucket=notifyuploadcomplete-terraform-tfstates-${{ inputs.environment }}" \
             -backend-config="key=${{ github.event.repository.name }}/${{ inputs.environment }}" \
             -backend-config="region=${{ inputs.aws-region }}"
@@ -65,17 +67,7 @@ jobs:
         run: |
           terraform workspace select ${{ inputs.environment }} || terraform workspace new ${{ inputs.environment }}
 
-      # 1) Criar só o bucket primeiro
-      - name: Terraform Apply (create bucket only)
-        working-directory: infra/terraform
-        run: |
-          if ! terraform state list | grep -q 'aws_s3_bucket.lambda_bucket'; then
-            terraform apply -auto-approve -target=aws_s3_bucket.lambda_bucket
-          else
-            echo "Lambda bucket already exists, skipping creation"
-          fi
-
-      # 2) Preparar e empacotar a Lambda
+      # Preparar e empacotar a Lambda
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -90,7 +82,7 @@ jobs:
           cd package
           zip -r ../NotifyUploadComplete.zip .
 
-      # 3) Upload para o bucket que o Terraform criou
+      # Upload para o bucket que o Terraform criou
       - name: Upload Lambda to S3
         working-directory: infra/terraform
         run: |
