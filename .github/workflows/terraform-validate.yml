@@ -22,6 +22,7 @@ jobs:
   bootstrap:
     permissions:
       secrets: write
+      contents: read
     runs-on: ubuntu-latest
     outputs:
       lambda_bucket_name: ${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}
