@@ -12,3 +12,8 @@ output "lambda_bucket_check" {
 output "tfstate_bucket_check" {
   value = data.external.tfstate_bucket_existing.result.exists
 }
+
+# Output útil para debugging
+output "bucket_created" {
+  value = data.external.lambda_bucket_existing.result.exists == "true" ? false : true
+}
