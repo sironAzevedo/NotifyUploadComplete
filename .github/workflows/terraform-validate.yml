@@ -17,6 +17,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  secrets: write
 
 jobs:
   bootstrap:
@@ -59,7 +60,7 @@ jobs:
       
       - name: Save bucket name in GitHub Env
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh secret set TF_LAMBDA_BUCKET_NAME --body "${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}"
 
