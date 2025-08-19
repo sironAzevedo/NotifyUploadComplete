@@ -16,8 +16,6 @@ on:
     secrets:
       aws-assume-role-arn:
         required: true
-      lambda_bucket_name:
-        required: true
 
 permissions:
   id-token: write

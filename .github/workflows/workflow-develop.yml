@@ -29,7 +29,6 @@ jobs:
       environment: 'dev'      
     secrets:
       aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
-      lambda_bucket_name: ${{ secrets.TF_LAMBDA_BUCKET_NAME }}
   
   create_pr:
     runs-on: ubuntu-latest
