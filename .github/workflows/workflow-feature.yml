@@ -3,16 +3,14 @@ name: CI/CD Terraform AWS
 on:
   push:
     branches: ['feature/**']
-  pull_request:
-    branches: ['feature/**']
     paths:
       - 'app/**'
       - 'infra/**'
+    
 
 permissions:
   id-token: write
   contents: read
-  secrets: write
 
 jobs:
   validate:
