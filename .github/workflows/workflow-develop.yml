@@ -3,6 +3,8 @@ name: CI/CD Terraform AWS
 on:
   push:
     branches: [develop]
+  pull_request:
+    branches: [develop]
     paths:
       - 'app/**'
       - 'infra/**'
