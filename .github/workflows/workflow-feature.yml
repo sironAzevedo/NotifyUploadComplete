@@ -8,6 +8,7 @@ on:
     paths:
       - 'app/**'
       - 'infra/**'
+    
 
 permissions:
   id-token: write

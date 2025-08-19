@@ -3,8 +3,6 @@ name: CI/CD Terraform AWS
 on:
   push:
     branches: [develop]
-  pull_request:
-    branches: [develop]
     paths:
       - 'app/**'
       - 'infra/**'
@@ -28,8 +26,7 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
     with:
-      environment: 'dev'
-      lambda_bucket_name: ${{ needs.bootstrap.outputs.lambda_bucket_name }}
+      environment: 'dev'      
     secrets:
       aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
   
