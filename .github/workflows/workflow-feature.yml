@@ -7,7 +7,7 @@ on:
     branches: ['feature/**']
     paths:
       - 'app/**'
-      - 'infra/terraform/**'
+      - 'infra/**'
 
 permissions:
   id-token: write

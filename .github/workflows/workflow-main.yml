@@ -7,7 +7,7 @@ on:
     branches: [main]
     paths:
       - 'app/**'
-      - 'infra/terraform/**'
+      - 'infra/**'
 
 permissions:
   id-token: write
@@ -18,8 +18,8 @@ jobs:
     name: Terraform Validate
     uses: ./.github/workflows/terraform-validate.yml
     with:
-      aws-region: 'us-east-1'
       environment: 'prod'
+      lambda_bucket_name: ${{ needs.bootstrap.outputs.lambda_bucket_name }}
     secrets:
       aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
 
@@ -29,7 +29,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/terraform-apply.yml
     with:
-      aws-region: 'us-east-1'
       environment: 'prod'
       github_environment: 'production'
     secrets:
