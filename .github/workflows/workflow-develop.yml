@@ -28,10 +28,10 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/terraform-apply.yml
     with:
-      environment: 'dev'
-      lambda_bucket_name: ${{ needs.bootstrap.outputs.lambda_bucket_name }}
+      environment: 'dev'      
     secrets:
       aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+      lambda_bucket_name: ${{ secrets.TF_LAMBDA_BUCKET_NAME }}
   
   create_pr:
     runs-on: ubuntu-latest

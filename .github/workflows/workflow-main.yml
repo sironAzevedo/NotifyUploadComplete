@@ -33,3 +33,4 @@ jobs:
       github_environment: 'production'
     secrets:
       aws-assume-role-arn: ${{ secrets.PROD_AWS_ASSUME_ROLE_ARN }}
+      lambda_bucket_name: ${{ secrets.TF_LAMBDA_BUCKET_NAME }}

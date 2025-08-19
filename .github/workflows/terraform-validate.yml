@@ -56,6 +56,10 @@ jobs:
         working-directory: infra/bootstrap
         run: |
           echo "lambda_bucket_name=$(terraform output -raw lambda_bucket_name)" >> $GITHUB_OUTPUT
+      
+      - name: Save bucket name in GitHub Env
+        run: |
+          gh secret set TF_LAMBDA_BUCKET_NAME --body "${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}"
 
   validate:
     runs-on: ubuntu-latest
