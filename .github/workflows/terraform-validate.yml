@@ -20,9 +20,6 @@ permissions:
 
 jobs:
   bootstrap:
-    permissions:
-      secrets: write
-      contents: read
     runs-on: ubuntu-latest
     outputs:
       lambda_bucket_name: ${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}
@@ -59,12 +56,14 @@ jobs:
         working-directory: infra/bootstrap
         run: |
           echo "lambda_bucket_name=$(terraform output -raw lambda_bucket_name)" >> $GITHUB_OUTPUT
+            
+      - name: Save bucket name artifact
+        run: echo "${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}" > lambda_bucket_name.txt
       
-      - name: Save bucket name in GitHub Env
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh secret set TF_LAMBDA_BUCKET_NAME --body "${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tf-bucket
+          path: lambda_bucket_name.txt
 
   validate:
     runs-on: ubuntu-latest
