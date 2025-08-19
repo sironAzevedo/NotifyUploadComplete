@@ -1,9 +1,15 @@
 data "external" "lambda_bucket_existing" {
-  program = ["bash", "${path.module}/check_s3.sh", local.name_backet_lambda]
+  program = ["${path.module}/check_s3.sh"]
+  query = {
+    bucket_name = local.name_backet_lambda
+  }
 }
 
 data "external" "tfstate_bucket_existing" {
-  program = ["bash", "${path.module}/check_s3.sh", local.bucket_name_tfstate]
+  program = ["${path.module}/check_s3.sh"]
+  query = {
+    bucket_name = local.bucket_name_tfstate
+  }
 }
 resource "aws_s3_bucket" "lambda_bucket" {
   count         = data.external.lambda_bucket_existing.result.exists == "false" ? 1 : 0

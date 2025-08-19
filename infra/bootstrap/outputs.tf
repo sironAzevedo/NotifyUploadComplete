@@ -4,3 +4,11 @@ output "lambda_bucket_name" {
     local.name_backet_lambda
   )
 }
+
+output "lambda_bucket_check" {
+  value = data.external.lambda_bucket_existing.result
+}
+
+output "tfstate_bucket_check" {
+  value = data.external.tfstate_bucket_existing.result
+}
