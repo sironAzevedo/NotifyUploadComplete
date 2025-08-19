@@ -41,7 +41,7 @@ resource "aws_s3_bucket_public_access_block" "terraform_tfstate_bucket_block" {
 
 # Habilitar versionamento
 resource "aws_s3_bucket_versioning" "lambda_bucket_versioning" {
-  count     = data.external.s3_check.result.exists == "false" ? 1 : 0
+  count     = data.external.lambda_bucket_existing.result.exists == "false" ? 1 : 0
   bucket    = aws_s3_bucket.lambda_bucket[0].id
   versioning_configuration {
     status = "Enabled"
