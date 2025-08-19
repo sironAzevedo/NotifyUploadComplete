@@ -6,9 +6,9 @@ output "lambda_bucket_name" {
 }
 
 output "lambda_bucket_check" {
-  value = data.external.lambda_bucket_existing.result.exists == "true"
+  value = data.external.lambda_bucket_existing.result.exists
 }
 
 output "tfstate_bucket_check" {
-  value = data.external.tfstate_bucket_existing.result.exists == "true"
+  value = data.external.tfstate_bucket_existing.result.exists
 }
