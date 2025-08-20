@@ -12,6 +12,14 @@ output "tfstate_bucket_name" {
   )
 }
 
+output "lambda_bucket_check_result" {
+  value = data.external.lambda_bucket_existing.result
+}
+
+output "bucket_exists" {
+  value = data.external.lambda_bucket_existing.result["exists"]
+}
+
 output "lambda_bucket_check" {
   value = data.external.lambda_bucket_existing.result.exists
 }
