@@ -1,25 +1,9 @@
 data "external" "lambda_bucket_existing" {
-  program = ["bash", "-c", <<-EOT
-    BUCKET_NAME=$1
-    if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
-      echo '{"exists":"true"}'
-    else
-      echo '{"exists":"false"}'
-    fi
-  EOT
-  , local.name_backet_lambda]
+  program = ["bash", "${path.module}/check_s3.sh", local.name_backet_lambda]
 }
 
 data "external" "tfstate_bucket_existing" {
-  program = ["bash", "-c", <<-EOT
-    BUCKET_NAME=$1
-    if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
-      echo '{"exists":"true"}'
-    else
-      echo '{"exists":"false"}'
-    fi
-  EOT
-  , local.bucket_name_tfstate]
+  program = ["bash", "${path.module}/check_s3.sh", local.bucket_name_tfstate]
 }
 resource "aws_s3_bucket" "lambda_bucket" {
   count         = local.lambda_bucket_existing ? 1 : 0
