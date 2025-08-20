@@ -1,4 +1,4 @@
-name: [FEATURE] CI/CD Terraform AWS
+name: "[FEATURE] CI/CD Terraform AWS"
 
 on:
   push:
