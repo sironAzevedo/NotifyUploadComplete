@@ -1,4 +1,4 @@
-name: CI/CD Terraform AWS
+name: "[DEV] CI/CD Terraform AWS"
 
 on:
   push:
@@ -20,7 +20,6 @@ jobs:
   deploy:
     name: Terraform Apply
     needs: validate
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     uses: ./.github/workflows/terraform-apply.yml
     with:
       environment: 'dev'      
