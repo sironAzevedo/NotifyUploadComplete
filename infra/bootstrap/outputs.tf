@@ -12,12 +12,20 @@ output "tfstate_bucket_name" {
   )
 }
 
+output "lambda_bucket_check_result" {
+  value = data.external.lambda_bucket_existing.result
+}
+
+output "bucket_exists" {
+  value = data.external.lambda_bucket_existing.result["exists"]
+}
+
 output "lambda_bucket_check" {
   value = data.external.lambda_bucket_existing.result.exists
 }
 
 output "lambda_bucket_created" {
-  value = data.external.lambda_bucket_existing.result.exists == "true" ? false : true
+  value = data.external.lambda_bucket_existing.result.exists == "true" ? true : false
 }
 
 output "tfstate_bucket_check" {
@@ -25,5 +33,5 @@ output "tfstate_bucket_check" {
 }
 
 output "tfstate_bucket_created" {
-  value = data.external.tfstate_bucket_existing.result.exists == "true" ? false : true
+  value = data.external.tfstate_bucket_existing.result.exists == "true" ? true : false
 }
