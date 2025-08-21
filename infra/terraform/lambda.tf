@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "notify_upload_complete" {
   function_name = local.name_prefix
-  s3_bucket     = aws_s3_bucket.lambda_bucket.bucket
+  s3_bucket     = local.name_backet_lambda
   s3_key        = local.lambda_s3_key
   handler       = var.lambda_handler
   runtime       = var.lambda_runtime

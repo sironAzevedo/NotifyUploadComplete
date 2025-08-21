@@ -1,7 +1,7 @@
 locals {
     # Define um prefixo padrão para todos os recursos
   name_prefix        = "NotifyUploadComplete-${var.environment}"
-  name_backet_lambda = "lambdas-notifyuploadcomplete-bucket-${var.environment}"
+  name_backet_lambda = "lambda-notifyuploadcomplete-bucket-${var.environment}"
   lambda_s3_key      = "NotifyUploadComplete-${var.environment}.zip"
 
   # Cria uma lista final de ARNs, incluindo o ARN do bucket e o ARN para os objetos dentro dele.
