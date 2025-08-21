@@ -99,7 +99,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.aws-assume-role-arn }}
-          aws-region: ${{ github.event.inputs.aws-region }}
+          aws-region: ${{ inputs.aws-region }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
