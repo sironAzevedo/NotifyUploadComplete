@@ -10,7 +10,7 @@ data "external" "bucket_existing" {
 
 resource "aws_s3_bucket" "bucket" {
   for_each = {
-    for name, result in data.external.s3_buckets_existing :
+    for name, result in data.external.bucket_existing :
     name => result if result.result.exists == "false"
   }
 
@@ -22,7 +22,7 @@ resource "aws_s3_bucket" "bucket" {
 # Bloquear acesso público lambda_bucket
 resource "aws_s3_bucket_public_access_block" "lambda_bucket_block" {
   for_each = {
-    for name, result in data.external.s3_buckets_existing :
+    for name, result in data.external.bucket_existing :
     name => result if result.result.exists == "false"
   }
   
