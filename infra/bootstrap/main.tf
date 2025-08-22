@@ -3,7 +3,7 @@ data "external" "bucket_existing" {
 
   program = [
     "bash",
-    "${path.module}/check_s3.sh",
+    "${path.module}/script/check_s3.sh",
     each.key
   ]
 }
