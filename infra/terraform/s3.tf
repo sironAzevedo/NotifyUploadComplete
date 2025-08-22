@@ -22,6 +22,20 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   depends_on = [aws_lambda_permission.allow_s3_to_invoke_lambda]
 }
 
+# Apagar versões antigas de arquivos após N dias
+resource "aws_s3_bucket_lifecycle_configuration" "lambda_bucket_lifecycle" {
+  bucket   = ar.source_s3_bucket_arn
+
+  rule {
+    id     = "delete-old-versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.bucket_lifecycle_old_versions #2
+    }
+  }
+}
+
 # Data source para obter o nome do bucket a partir do ARN fornecido
 data "aws_arn" "source_bucket_arn" {
   arn = var.source_s3_bucket_arn

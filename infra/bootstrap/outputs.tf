@@ -1,37 +1,18 @@
 output "lambda_bucket_name" {
-  value = coalesce(
-    try(aws_s3_bucket.lambda_bucket[0].id, null),
-    local.name_backet_lambda
-  )
+  value = local.name_backet_lambda
 }
 
-output "tfstate_bucket_name" {
-  value = coalesce(
-    try(aws_s3_bucket.tfstate[0].id, null),
-    local.bucket_name_tfstate
-  )
+output "buckets_to_destroy" {
+  value = local.buckets_to_fluxo
 }
 
-output "lambda_bucket_check_result" {
-  value = data.external.lambda_bucket_existing.result
-}
-
-output "bucket_exists" {
-  value = data.external.lambda_bucket_existing.result["exists"]
-}
-
-output "lambda_bucket_check" {
-  value = data.external.lambda_bucket_existing.result.exists
-}
-
-output "lambda_bucket_created" {
-  value = data.external.lambda_bucket_existing.result.exists == "true" ? true : false
-}
-
-output "tfstate_bucket_check" {
-  value = data.external.tfstate_bucket_existing.result.exists
-}
-
-output "tfstate_bucket_created" {
-  value = data.external.tfstate_bucket_existing.result.exists == "true" ? true : false
+output "buckets_existing" {
+  description = "Lista dos buckets com status de existência"
+  value = {
+    for k, v in data.external.bucket_existing :
+    k => {
+      bucket_name = v.result.bucket_name
+      exists      = v.result.exists == "true"
+    }
+  }
 }

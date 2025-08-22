@@ -118,3 +118,9 @@ jobs:
         run: |
           terraform destroy -auto-approve \
             -var="environment=${{ inputs.environment }}"
+      
+      - name: Remove buckets do statefile
+        working-directory: infra/bootstrap
+        run: |
+          chmod +x ./script/destroy-buckets.sh
+          ./script/destroy-buckets.sh
