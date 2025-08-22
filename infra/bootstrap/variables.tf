@@ -9,3 +9,9 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "bucket_lifecycle_old_versions" {
+  description = "Apagar versões antigas após N dias"
+  type        = number
+  default     = 2
+}
