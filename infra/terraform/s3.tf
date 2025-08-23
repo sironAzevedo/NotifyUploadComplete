@@ -24,11 +24,12 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 
 # Apagar versões antigas de arquivos após N dias
 resource "aws_s3_bucket_lifecycle_configuration" "lambda_bucket_lifecycle" {
-  bucket   = var.source_s3_bucket_arn
+  bucket = data.aws_s3_bucket.source_bucket.id
 
   rule {
     id     = "delete-old-versions"
     status = "Enabled"
+    filter {}
 
     noncurrent_version_expiration {
       noncurrent_days = var.bucket_lifecycle_old_versions #2
