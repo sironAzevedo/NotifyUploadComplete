@@ -6,11 +6,10 @@ on:
       environment:
         type: string
         required: true
-      run_bootstrap:
-        description: 'Se true, executa o job de bootstrap'
-        required: false
-        type: boolean
-        default: false # Padrão é não executar
+      is_develop_or_main_branch:
+        description: 'True se a branch for a main or develop'
+        required: true
+        type: boolean # O tipo é booleano
       aws-region:
         type: string
         required: false
@@ -26,8 +25,6 @@ permissions:
 jobs:
   bootstrap:
     name: Terraform Bootstrap
-    # ✅ CONDIÇÃO: Este job só será executado se run_bootstrap for true
-    if: inputs.run_bootstrap
     runs-on: ubuntu-latest
     outputs:
       lambda_bucket_name: ${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}
@@ -65,25 +62,30 @@ jobs:
       
       - name: Get lambda bucket name output
         id: get_lambda_bucket
+        if: inputs.is_develop_or_main_branch
         working-directory: infra/bootstrap
         run: |
           echo "lambda_bucket_name=$(terraform output -raw lambda_bucket_name)" >> $GITHUB_OUTPUT
       
       - name: Save buckets list to file
+        if: inputs.is_develop_or_main_branch
         working-directory: infra/bootstrap
         id: list_bucket
         run: terraform output -json buckets_to_destroy > buckets_to_destroy-${{ inputs.environment }}.json
 
       - name: Save bucket name artifact
+        if: inputs.is_develop_or_main_branch
         run: echo "${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}" > lambda_bucket_name.txt
       
       - name: Upload bucket name artifact
+        if: inputs.is_develop_or_main_branch
         uses: actions/upload-artifact@v4
         with:
           name: tf-bucket
           path: lambda_bucket_name.txt
       
       - name: Upload bucket list artifact
+        if: inputs.is_develop_or_main_branch
         uses: actions/upload-artifact@v4
         with:
           name: buckets-to-destroy-${{ inputs.environment }}
