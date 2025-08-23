@@ -60,14 +60,26 @@ jobs:
         working-directory: infra/bootstrap
         run: |
           echo "lambda_bucket_name=$(terraform output -raw lambda_bucket_name)" >> $GITHUB_OUTPUT
-            
+      
+      - name: Save buckets list to file
+        working-directory: infra/bootstrap
+        id: list_bucket
+        run: terraform output -json buckets_to_destroy > buckets_to_destroy-${{ inputs.environment }}.json
+
       - name: Save bucket name artifact
         run: echo "${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}" > lambda_bucket_name.txt
       
-      - uses: actions/upload-artifact@v4
+      - name: Upload bucket name artifact
+        uses: actions/upload-artifact@v4
         with:
           name: tf-bucket
           path: lambda_bucket_name.txt
+      
+      - name: Upload bucket list artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: buckets-to-destroy-${{ inputs.environment }}
+          path: infra/bootstrap/buckets_to_destroy-${{ inputs.environment }}.json
 
   validate:
     runs-on: ubuntu-latest
