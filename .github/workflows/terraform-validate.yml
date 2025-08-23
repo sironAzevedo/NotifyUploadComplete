@@ -6,6 +6,11 @@ on:
       environment:
         type: string
         required: true
+      run_bootstrap:
+        description: 'Se true, executa o job de bootstrap'
+        required: false
+        type: boolean
+        default: false # Padrão é não executar
       aws-region:
         type: string
         required: false
@@ -20,6 +25,9 @@ permissions:
 
 jobs:
   bootstrap:
+    name: Terraform Bootstrap
+    # ✅ CONDIÇÃO: Este job só será executado se run_bootstrap for true
+    if: inputs.run_bootstrap
     runs-on: ubuntu-latest
     outputs:
       lambda_bucket_name: ${{ steps.get_lambda_bucket.outputs.lambda_bucket_name }}

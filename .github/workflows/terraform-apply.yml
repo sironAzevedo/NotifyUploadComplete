@@ -105,6 +105,6 @@ jobs:
             -var-file="./${{ inputs.environment }}/terraform.tfvars" \
             -out="${{ inputs.environment }}.plan"
 
-      - name: Terraform Apply (full infra)
+      - name: Terraform Apply
         working-directory: infra/terraform
         run: terraform apply -auto-approve "${{ inputs.environment }}.plan"
