@@ -32,6 +32,7 @@ jobs:
   # Job para destruir o ambiente de desenvolvimento
   destroy-dev:
     if: ${{ github.event.inputs.confirm == 'destruir' && github.event.inputs.environment == 'dev' }}
+    needs: validate
     uses: ./.github/workflows/terraform-destroy.yml
     with:
       environment: 'dev'
@@ -40,6 +41,7 @@ jobs:
   
   destroy-prod:
     if: ${{ github.event.inputs.confirm == 'destruir' && github.event.inputs.environment == 'prod' }}
+    needs: validate
     uses: ./.github/workflows/terraform-destroy.yml
     with:
       environment: 'prod'
