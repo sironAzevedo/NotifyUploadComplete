@@ -19,6 +19,16 @@ permissions:
   contents: read
 
 jobs:
+  validate:
+    name: Terraform Validate
+    uses: ./.github/workflows/terraform-validate.yml
+    with:
+      environment: 'dev'
+      is_develop_or_main_branch: false
+      is_destroy: true
+    secrets:
+      aws-assume-role-arn: ${{ secrets.DEV_AWS_ASSUME_ROLE_ARN }}
+
   # Job para destruir o ambiente de desenvolvimento
   destroy-dev:
     if: ${{ github.event.inputs.confirm == 'destruir' && github.event.inputs.environment == 'dev' }}
