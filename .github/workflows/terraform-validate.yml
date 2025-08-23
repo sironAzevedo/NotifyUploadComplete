@@ -47,7 +47,7 @@ jobs:
       
       - name: Grant execute permission to check_s3.sh
         working-directory: infra/bootstrap
-        run: chmod +x ./check_s3.sh
+        run: chmod +x ./script/check_s3.sh
 
       - name: Terraform Apply (bootstrap)
         working-directory: infra/bootstrap

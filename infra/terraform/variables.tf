@@ -56,3 +56,9 @@ variable "source_s3_bucket_arn" {
   description = "ARN do bucket S3 existente que irá disparar a notificação para a Lambda."
   type        = string
 }
+
+variable "bucket_lifecycle_old_versions" {
+  description = "Apagar versões antigas após N dias"
+  type        = number
+  default     = 2
+}
