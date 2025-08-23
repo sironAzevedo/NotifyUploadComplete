@@ -113,14 +113,20 @@ jobs:
           -backend=false \
           -var="environment=${{ inputs.environment }}"
 
+      # Salva a lista de buckets ANTES de destruir
+      - name: Get buckets to destroy
+        working-directory: infra/bootstrap
+        run: terraform output -json buckets_to_destroy > buckets_to_destroy.json
+
       - name: Terraform Destroy (bootstrap)
         working-directory: infra/bootstrap
         run: |
           terraform destroy -auto-approve \
             -var="environment=${{ inputs.environment }}"
       
-      - name: Remove buckets do statefile
+      - name: Force remove S3 buckets
         working-directory: infra/bootstrap
         run: |
           chmod +x ./script/destroy-buckets.sh
-          ./script/destroy-buckets.sh
+          # Lê o JSON, extrai os nomes dos buckets e passa via xargs para o script
+          jq -r '.[]' buckets_to_destroy.json | xargs ./script/destroy-buckets.sh

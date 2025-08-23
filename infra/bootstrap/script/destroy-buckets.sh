@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Obtém os buckets definidos em locals
-BUCKETS=$(terraform output -json buckets_to_destroy | jq -r '.[]')
+# A linha que lia o arquivo foi removida.
+# O loop 'for' agora itera diretamente sobre os argumentos de linha de comando ("$@").
 
-for BUCKET in $BUCKETS; do
+if [ "$#" -eq 0 ]; then
+    echo "Nenhum bucket fornecido para exclusão. Encerrando."
+    exit 0
+fi
+
+for BUCKET in "$@"; do
   echo "🔍 Verificando bucket: $BUCKET"
   
   if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
