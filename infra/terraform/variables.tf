@@ -18,7 +18,7 @@ variable "lambda_runtime" {
 
 variable "lambda_handler" {
   type    = string
-  default = "main.lambda_handler"
+  default = "lambda_function.lambda_handler"
 }
 
 variable "lambda_timeout" {
