@@ -1,6 +1,7 @@
 locals {
     # Define um prefixo padrão para todos os recursos
   name_prefix        = "NotifyUploadComplete-${var.environment}"
+  queue_name_sqs     = "queue-notify-upload-complete-${var.environment}"
   name_backet_lambda = "lambda-notifyuploadcomplete-bucket-${var.environment}"
   lambda_s3_key      = "NotifyUploadComplete-${var.environment}.zip"
 

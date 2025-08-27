@@ -1,5 +1,5 @@
 resource "aws_sqs_queue" "notify_upload_complete" {
-  name                        = local.name_prefix
+  name                        = local.queue_name_sqs
   delay_seconds               = 0
   max_message_size            = 262144 # 256KB
   visibility_timeout_seconds  = 30
