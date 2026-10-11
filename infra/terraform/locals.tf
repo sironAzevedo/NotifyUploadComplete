@@ -1,9 +1,10 @@
 locals {
     # Define um prefixo padrão para todos os recursos
-  name_prefix        = "NotifyUploadComplete-${var.environment}"
-  queue_name_sqs     = "queue-notify-upload-complete-${var.environment}"
-  name_backet_lambda = "lambda-notifyuploadcomplete-bucket-${var.environment}"
-  lambda_s3_key      = "NotifyUploadComplete-${var.environment}.zip"
+  name_prefix                                   = "NotifyUploadComplete-${var.environment}"
+  queue_name_sqs                                = "queue-notify-upload-complete-${var.environment}"
+  queue_name_update_url_documento_expirado      = "queue-update_url_documento_expirado-${var.environment}"
+  name_backet_lambda                            = "lambda-notifyuploadcomplete-bucket-${var.environment}"
+  lambda_s3_key                                 = "NotifyUploadComplete-${var.environment}.zip"
 
   # Cria uma lista final de ARNs, incluindo o ARN do bucket e o ARN para os objetos dentro dele.
   # Exemplo: de ["arn:aws:s3:::bucket1"] para ["arn:aws:s3:::bucket1", "arn:aws:s3:::bucket1/*"]
