@@ -49,15 +49,15 @@ data "aws_s3_bucket" "source_bucket" {
 }
 
 # ==============================================================================
-# Bucket: caderneta-service-image
+# Bucket: caderneta-service-image-${var.environment}
 # Armazenamento de imagens e avatares para o caderneta-service
 # ==============================================================================
 
 resource "aws_s3_bucket" "caderneta_service_image" {
-  bucket = "caderneta-service-image"
+  bucket = "caderneta-service-image-${var.environment}"
 
   tags = {
-    Name        = "caderneta-service-image"
+    Name        = "caderneta-service-image-${var.environment}"
     Environment = var.environment
     Project     = "caderneta"
     Terraform   = "true"
