@@ -27,3 +27,14 @@ output "iam_role_arn" {
   description = "ARN of the IAM role for Lambda"
   value       = aws_iam_role.notify_upload_complete.arn
 }
+
+
+output "caderneta_service_image_bucket_name" {
+  description = "Nome do bucket S3 para imagens do caderneta-service"
+  value       = aws_s3_bucket.caderneta_service_image.bucket
+}
+
+output "caderneta_service_image_bucket_arn" {
+  description = "ARN do bucket S3 para imagens do caderneta-service"
+  value       = aws_s3_bucket.caderneta_service_image.arn
+}
