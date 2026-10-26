@@ -47,3 +47,67 @@ data "aws_arn" "source_bucket_arn" {
 data "aws_s3_bucket" "source_bucket" {
   bucket = data.aws_arn.source_bucket_arn.resource
 }
+
+# ==============================================================================
+# Bucket: caderneta-service-image
+# Armazenamento de imagens e avatares para o caderneta-service
+# ==============================================================================
+
+resource "aws_s3_bucket" "caderneta_service_image" {
+  bucket = "caderneta-service-image"
+
+  tags = {
+    Name        = "caderneta-service-image"
+    Environment = var.environment
+    Project     = "caderneta"
+    Terraform   = "true"
+  }
+}
+
+# 1. Desbloqueia acesso público para permitir que o bucket e objetos sejam lidos publicamente
+resource "aws_s3_bucket_public_access_block" "caderneta_service_image_pab" {
+  bucket = aws_s3_bucket.caderneta_service_image.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# 2. Configuração de CORS para permitir requisições das aplicações web frontend
+resource "aws_s3_bucket_cors_configuration" "caderneta_service_image_cors" {
+  bucket = aws_s3_bucket.caderneta_service_image.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "PUT", "POST", "HEAD"]
+    allowed_origins = [
+      "https://finance-zen-76.vercel.app",
+      "https://vidadefinancas.vercel.app",
+      "http://localhost:8082",
+      "http://127.0.0.1:5500"
+    ]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
+# 3. Política de Bucket: Leitura pública para todos os objetos do bucket (AllowPublicRead)
+resource "aws_s3_bucket_policy" "caderneta_service_image_policy" {
+  bucket = aws_s3_bucket.caderneta_service_image.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowPublicRead"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.caderneta_service_image.arn}/*"
+      }
+    ]
+  })
+
+  depends_on = [aws_s3_bucket_public_access_block.caderneta_service_image_pab]
+}
